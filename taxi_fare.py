@@ -19,7 +19,7 @@ PREPARING THE DATASET
 """
 
 def process(file_url):
-    dataset = pd.read_csv(file_url, nrows=50000)    
+    dataset = pd.read_csv(file_url, nrows=100000)    
 
     dataset = dataset.dropna()
     dataset = dataset[dataset['dropoff_latitude'] != 0]
@@ -130,25 +130,29 @@ PLOTTING THE PREDICTION GRAPH
 """
 train_predictions = model.predict(train_dataset).flatten()
 plt.axes(aspect = 'equal')
-plt.scatter(train_labels, train_predictions, s=1, color="b")
+plt.scatter(train_labels, train_predictions, s=1, color="b", label="Training")
 plt.xlabel('True Values')
 plt.ylabel('Predictions')
 lims = [0, 100]
 plt.xlim(lims)
 plt.ylim(lims)
-plt.plot(lims, lims, label="Training Prediction")
+plt.legend()
+plt.grid(True)
+plt.plot(lims, lims)
 
 
 
 test_predictions = model.predict(test_dataset).flatten()
 plt.axes(aspect = 'equal')
-plt.scatter(test_labels, test_predictions, s=1, color="r")
+plt.scatter(test_labels, test_predictions, s=1, color="r", label="Test")
 plt.xlabel('True Values')
 plt.ylabel('Predictions')
 lims = [0, 100]
 plt.xlim(lims)
 plt.ylim(lims)
-plt.plot(lims, lims, label="Test Prediction")
+plt.legend()
+plt.grid(True)
+plt.plot(lims, lims)
 
 """
 PRINTING THE RESULT
