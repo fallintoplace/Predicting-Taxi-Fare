@@ -19,7 +19,7 @@ PREPARING THE DATASET
 """
 
 def process(file_url):
-    dataset = pd.read_csv(file_url, nrows=22022)    
+    dataset = pd.read_csv(file_url)    
 
     dataset = dataset.dropna()
     dataset = dataset[dataset['dropoff_latitude'] != 0]
