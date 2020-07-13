@@ -6,7 +6,7 @@ from datetime import datetime
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras import regularizers
-
+from sklearn import preprocessing
 from matplotlib import pyplot as plt
 from matplotlib import dates as md
 
@@ -19,7 +19,7 @@ PREPARING THE DATASET
 """
 
 def process(file_url):
-    dataset = pd.read_csv(file_url)    
+    dataset = pd.read_csv(file_url, nrows=50000)    
 
     dataset = dataset.dropna()
     dataset = dataset[dataset['dropoff_latitude'] != 0]
@@ -46,13 +46,30 @@ def process(file_url):
 
 
 dataset = process("C:\\Users\\Minh\\Downloads\\new-york-city-taxi-fare-prediction\\train.csv")
+dataset.pop('key')
+
 dataset = dataset.sample(frac=1).reset_index(drop=True)
 
+train_dataset = dataset.sample(frac=0.8,random_state=0)
+test_dataset = dataset.drop(train_dataset.index)
 
-train_labels = dataset.pop('fare_amount')
-dataset.pop('key')
-print(dataset.head())
-dataset=(dataset-dataset.mean())/dataset.std()
+train_labels = train_dataset.pop('fare_amount')
+test_labels = test_dataset.pop('fare_amount')
+
+final = process("C:\\Users\\Minh\\Downloads\\new-york-city-taxi-fare-prediction\\test.csv")
+final_key = final.pop('key')
+
+
+train_stats = train_dataset.describe()
+train_stats = train_stats.transpose()
+print(train_stats.head())
+
+def norm(x):
+    return (x - train_stats['mean']) / train_stats['std']
+final = norm(final)
+test_dataset = norm(test_dataset)
+train_dataset = norm(train_dataset)
+
 
 """
 TWO DENSELY PRELU ACTIVATED CONNECTED LAYERS WITH DROPOUTS, REGULARIZATIONS
@@ -63,7 +80,7 @@ AND LAYER NORMALIZATION
 def build_model():
     model = keras.Sequential([
         layers.Dense(50, 
-                     input_shape = [len(dataset.keys())],
+                     input_shape = [len(train_dataset.keys())],
                      kernel_regularizer=regularizers.l1_l2(l1 = 1e-5, l2 = 1e-4),
                      bias_regularizer=regularizers.l2(1e-4),
                      activity_regularizer=regularizers.l2(1e-5)
@@ -97,7 +114,7 @@ FITTING AND PLOTTING THE LOSS VALUE GRAPH
 """
 
 history = model.fit(
-    dataset, train_labels,
+    train_dataset, train_labels,
     epochs = 1000, batch_size = 128, validation_split = 0.2, verbose = 1,
     callbacks = [keras.callbacks.EarlyStopping(monitor = 'val_loss', patience = 20)],
 )
@@ -111,16 +128,27 @@ plt.show()
 PLOTTING THE PREDICTION GRAPH
 
 """
-
-test_predictions = model.predict(dataset).flatten()
+train_predictions = model.predict(train_dataset).flatten()
 plt.axes(aspect = 'equal')
-plt.scatter(train_labels, test_predictions)
+plt.scatter(train_labels, train_predictions, s=1, color="b")
 plt.xlabel('True Values')
 plt.ylabel('Predictions')
 lims = [0, 100]
 plt.xlim(lims)
 plt.ylim(lims)
-plt.plot(lims, lims)
+plt.plot(lims, lims, label="Training Prediction")
+
+
+
+test_predictions = model.predict(test_dataset).flatten()
+plt.axes(aspect = 'equal')
+plt.scatter(test_labels, test_predictions, s=1, color="r")
+plt.xlabel('True Values')
+plt.ylabel('Predictions')
+lims = [0, 100]
+plt.xlim(lims)
+plt.ylim(lims)
+plt.plot(lims, lims, label="Test Prediction")
 
 """
 PRINTING THE RESULT
@@ -128,9 +156,8 @@ PRINTING THE RESULT
 """
 
 
-final = process("C:\\Users\\Minh\\Downloads\\new-york-city-taxi-fare-prediction\\test.csv")
-final_key = final.pop('key')
-final = (final-final.mean())/final.std()
+
+
 result = pd.DataFrame()
 result['key'] = final_key
 result['fare_amount']=model.predict(final).flatten()
