@@ -111,7 +111,7 @@ history = model.fit(
                                             patience=10, 
                                             verbose=1, 
                                             factor=0.2, 
-                                            min_lr=0.0001)],
+                                            min_lr=0.00005)],
 )
 
 plt.plot(history.history["loss"], label="Training Loss")
