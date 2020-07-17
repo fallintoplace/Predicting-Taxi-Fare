@@ -110,8 +110,8 @@ history = model.fit(
     callbacks = [keras.callbacks.ReduceLROnPlateau(monitor='val_loss', 
                                             patience=10, 
                                             verbose=1, 
-                                            factor=0.5, 
-                                            min_lr=0.00001)],
+                                            factor=0.2, 
+                                            min_lr=0.0001)],
 )
 
 plt.plot(history.history["loss"], label="Training Loss")
