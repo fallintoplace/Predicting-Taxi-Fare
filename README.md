@@ -1,4 +1,4 @@
-# Predicting-Taxi-Fare
+# Taxi-Fare-Prediction
 Regression for NYC Predicting Taxi Fare  with Keras based on coordinates, pick-up time and the number of passengers. RMSE score of 3.67 (Top 55% of the leaderboard &amp; linear model reaches 5.7 in comparison) www.kaggle.com/c/new-york-city-taxi-fare-prediction
 
 Simple neural network architecture on Keras of 2 dense layers with size 50, with PReLu activation function, dropouts and layer normalizations. Reduction of the learning rate after 10 epochs without progress. The loss function here is MSE.
