@@ -108,7 +108,7 @@ history = model.fit(
     train_dataset, train_labels,
     epochs = 1000, batch_size = 128, validation_split = 0.2, verbose = 1,
     callbacks = [keras.callbacks.ReduceLROnPlateau(monitor='val_loss', 
-                                            patience=20, 
+                                            patience=10, 
                                             verbose=1, 
                                             factor=0.6, 
                                             min_lr=0.00005)],
